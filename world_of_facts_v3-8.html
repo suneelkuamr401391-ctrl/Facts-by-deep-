@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World of Facts</title>
+<style>
+:root{--bg:#071326;--panel:#10213d;--panel2:#142b4d;--text:#f4f7ff;--muted:#aebdd5;--accent:#65d6ff;--gold:#ffd166}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top,#18365c 0,#071326 55%);color:var(--text);min-height:100vh}
+header{padding:34px 18px 24px;text-align:center}
+.logo{font-size:13px;letter-spacing:4px;color:var(--accent);font-weight:bold}
+h1{font-size:clamp(36px,8vw,64px);margin:12px 0 8px;line-height:1.05}
+header p{color:var(--muted);font-size:17px;margin:0 auto;max-width:650px;line-height:1.5}
+main{max-width:1100px;margin:auto;padding:10px 18px 50px}
+.search-wrap{max-width:650px;margin:18px auto 28px}
+input{width:100%;padding:16px 18px;border-radius:14px;border:1px solid #365477;background:#0d1c33;color:white;font-size:16px;outline:none}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #65d6ff22}
+.section-title{font-size:22px;margin:28px 0 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:13px}
+.category{border:1px solid #294668;background:linear-gradient(145deg,#142b4d,#0d1d35);border-radius:16px;padding:19px 13px;text-align:center;cursor:pointer;transition:.2s;color:white}
+.category:hover{transform:translateY(-4px);border-color:var(--accent);background:#19385c}
+.category .icon{font-size:31px;display:block;margin-bottom:10px}
+.category strong{font-size:15px}
+button{font:inherit}
+#topicPage{display:none}
+.back{border:1px solid #426384;background:#142b4d;color:white;padding:10px 15px;border-radius:10px;cursor:pointer;margin:8px 0 20px}
+.back:hover{border-color:var(--accent)}
+.topic-heading{font-size:32px;margin:0 0 8px}
+.topic-intro{color:var(--muted);line-height:1.5;margin:0 0 22px}
+.articles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:15px}
+.card{background:linear-gradient(145deg,#142b4d,#0c1b31);border:1px solid #294668;border-radius:16px;padding:19px}
+.card h3{margin:0 0 9px;color:var(--gold);font-size:18px}
+.card p{color:#d7e1f1;line-height:1.6;margin:0}
+#searchResults{display:none}
+.result{padding:15px 17px;margin:10px 0;background:var(--panel);border:1px solid #294668;border-radius:12px}
+.result h3{margin:0 0 7px;color:var(--gold)}
+.result p{margin:0;color:#d7e1f1;line-height:1.5}
+footer{text-align:center;color:#8397b5;padding:25px 15px;font-size:13px}
+.empty{color:var(--muted);text-align:center;padding:25px}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">EXPLORE • LEARN • DISCOVER</div>
+ <h1>🌍 World of Facts</h1>
+ <p>A little knowledge can open a whole universe. Explore amazing discoveries, ideas and facts from around our world.</p>
+</header>
+<main>
+ <div class="search-wrap"><input id="search" type="search" placeholder="🔎 Search facts or topics..." oninput="searchFacts()"></div>
+ <section id="homePage">
+  <h2 class="section-title">Explore Categories</h2>
+  <div class="grid" id="categoryGrid"></div>
+  <div id="searchResults"></div>
+ </section>
+ <section id="topicPage">
+  <button class="back" onclick="showHome()">← Back to categories</button>
+  <h2 class="topic-heading" id="topicTitle"></h2>
+  <p class="topic-intro" id="topicIntro"></p>
+  <div class="articles" id="articleGrid"></div>
+ </section>
+</main>
+<footer>WORLD OF FACTS • Keep asking questions. Keep discovering.</footer>
+<script>
+const topics = [
+ {name:"Space",icon:"🚀",intro:"Discover the stars, planets, galaxies and mysteries beyond Earth.",facts:[
+ ["The Sun is a star","The Sun is the star at the centre of our solar system. Its light and heat make life on Earth possible."],
+ ["A day on Venus","Venus rotates very slowly. One rotation takes longer than one trip around the Sun."],
+ ["The Milky Way","Our solar system is part of a galaxy called the Milky Way, which contains billions of stars."]]},
+ {name:"Science",icon:"🧪",intro:"Explore the experiments, discoveries and rules that help explain nature.",facts:[
+ ["Everything is made of matter","Matter is made of tiny particles called atoms and molecules."],
+ ["Light travels very fast","Light travels through empty space at about 300,000 kilometres per second."],
+ ["Magnets have two poles","Every ordinary magnet has a north pole and a south pole. Like poles repel and unlike poles attract."]]},
+ {name:"Technology",icon:"🤖",intro:"Learn how inventions and digital tools are changing the way people live.",facts:[
+ ["The first computer networks","Early computer networks helped make today's internet possible."],
+ ["GPS uses satellites","GPS receivers use signals from satellites to estimate their location."],
+ ["AI learns from data","Many artificial intelligence systems find patterns in data to make predictions or create responses."]]},
+ {name:"Biology",icon:"🧬",intro:"Meet living things, from tiny cells to giant animals and plants.",facts:[
+ ["Cells are life's building blocks","All living organisms are made of one or more cells."],
+ ["Your heart is a pump","The heart moves blood around the body, carrying oxygen and nutrients."],
+ ["Plants make their food","In photosynthesis, plants use light energy to make sugars from water and carbon dioxide."]]},
+ {name:"History",icon:"🏛️",intro:"Travel through time and learn about people, places and past events.",facts:[
+ ["Writing changed history","Writing allowed people to record information, laws, stories and trade."],
+ ["The ancient pyramids","The pyramids of Giza in Egypt were built thousands of years ago and still stand today."],
+ ["The printing press","Movable-type printing helped books and information spread more widely."]]},
+ {name:"Geography",icon:"🌏",intro:"Explore continents, oceans, mountains, rivers and our changing planet.",facts:[
+ ["Earth has seven continents","The commonly taught seven-continent model includes Asia, Africa, North America, South America, Antarctica, Europe and Australia."],
+ ["The Pacific Ocean","The Pacific is the largest ocean on Earth."],
+ ["Mount Everest","Mount Everest is Earth's highest mountain above sea level."]]},
+ {name:"Animals",icon:"🐾",intro:"Discover fascinating creatures and the ways they survive.",facts:[
+ ["Octopuses have three hearts","Two hearts move blood to the gills, while another moves it to the rest of the body."],
+ ["Blue whales are enormous","The blue whale is the largest animal known to have lived on Earth."],
+ ["Bees communicate","Honeybees can use movements called a waggle dance to share information about food locations."]]},
+ {name:"Our Planet",icon:"🌱",intro:"Understand Earth's environment, weather, oceans and natural wonders.",facts:[
+ ["Earth has a protective atmosphere","Our atmosphere contains gases that help make Earth suitable for life."],
+ ["Water moves in a cycle","Water evaporates, condenses into clouds and returns as precipitation."],
+ ["Coral reefs support life","Coral reefs provide habitats for many kinds of marine organisms."]]}
+];
+const categoryGrid=document.getElementById("categoryGrid");
+topics.forEach((t,i)=>{const b=document.createElement("button");b.className="category";b.innerHTML=`<span class="icon">${t.icon}</span><strong>${t.name}</strong>`;b.onclick=()=>openTopic(i);categoryGrid.appendChild(b)});
+function openTopic(i){
+ const t=topics[i];document.getElementById("homePage").style.display="none";document.getElementById("topicPage").style.display="block";
+ document.getElementById("topicTitle").textContent=t.icon+" "+t.name;document.getElementById("topicIntro").textContent=t.intro;
+ document.getElementById("articleGrid").innerHTML=t.facts.map(f=>`<article class="card"><h3>${f[0]}</h3><p>${f[1]}</p></article>`).join("");
+ document.getElementById("search").value="";window.scrollTo(0,0);
+}
+function showHome(){document.getElementById("topicPage").style.display="none";document.getElementById("homePage").style.display="block";document.getElementById("search").value="";document.getElementById("searchResults").style.display="none";categoryGrid.style.display="grid";document.querySelector("#homePage .section-title").style.display="block";window.scrollTo(0,0)}
+function searchFacts(){
+ const q=document.getElementById("search").value.trim().toLowerCase(), box=document.getElementById("searchResults");
+ if(!q){box.style.display="none";categoryGrid.style.display="grid";document.querySelector("#homePage .section-title").style.display="block";return}
+ document.getElementById("topicPage").style.display="none";document.getElementById("homePage").style.display="block";categoryGrid.style.display="none";document.querySelector("#homePage .section-title").style.display="none";box.style.display="block";
+ const matches=[];topics.forEach(t=>t.facts.forEach(f=>{if((t.name+" "+f[0]+" "+f[1]).toLowerCase().includes(q))matches.push({topic:t.name,title:f[0],text:f[1]})}));
+ box.innerHTML=matches.length?`<h2 class="section-title">Search Results</h2>`+matches.map(m=>`<div class="result"><h3>${m.title} <small>— ${m.topic}</small></h3><p>${m.text}</p></div>`).join(""):`<p class="empty">No matching facts found. Try another word.</p>`;
+}
+</script>
+</body>
+</html>
